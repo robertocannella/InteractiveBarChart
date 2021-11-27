@@ -105,26 +105,6 @@ def on_pick(event):
     plt.connect('button_press_event', on_click)
 
 plt.connect('pick_event', on_pick)
-# coords = []
-# def on_click(event):
-#     global ix, iy
-#     ix, iy = event.xdata, event.ydata
-#     print ('x = %d, y = %d'%(
-#         ix, iy))
-#
-#     global coords
-#     coords.append((ix, iy))
-#
-#     if len(coords) == 2:
-#         fig.canvas.mpl_disconnect(cid)
-#
-#     return coords
-# cid = fig.canvas.mpl_connect('button_press_event', on_click)
-
-# def onpick(event):
-#     origin = df.iloc[event.ind[0]]['origin']
-#     plt.gca().set_title('Selected item came from {}'.format(origin))
-
 binding_id = plt.connect('motion_notify_event', on_move)
 plt.connect('button_press_event', on_click)
 
