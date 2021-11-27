@@ -44,15 +44,16 @@ for n, item in enumerate(df.columns):
                 yerr=stats.sem(df[item]) * 1.96, capsize=10)
 _ = plt.xticks(df.columns)
 
-fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap))
-
+cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),aspect=10)
+cbar.set_ticks([])
 print(df.mean().values)
 print (df.mean().values/42000)
 
-
+line1 = plt.axhline(y=y_value, picker=5)
+mouse_off = False
 
 def on_move(event):
-
+    global line1
     x, y = event.x, event.y
     if event.inaxes:
         _ = event.inaxes  # the axes instance
@@ -69,27 +70,62 @@ def on_move(event):
                          yerr=stats.sem(df[item])*1.96, capsize=10)
         _ = plt.xticks(df.columns)
 
-        fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap))
-
+        mean_normalize = mpl.colors.Normalize(df.mean().values.min(),df.mean().values.max())
+        cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=mean_normalize, cmap=cmap),aspect=10)
+        cbar.set_ticks([df.mean().values.min(),df.mean().values.mean(),df.mean().values.max()])
+        cbar.ax.set_yticklabels(['Below', 'Within', 'Above'])  # horizontal colorbar
         #y_coordinates = [y_value, y_value]
-        plt.axhline(y=y_value)
+        line1 = plt.axhline(y=y_value, picker=5)
         #plt.plot(x_coordinates, y_coordinates)
         plt.draw()
 
-mouse_off = False
+binding_id = ''
+
 def on_click(event):
-    global mouse_off
-    mouse_off = not mouse_off
-
-
+    print(event.inaxes)
     if event.button is MouseButton.LEFT:
-        print('disconnecting callback')
-        print(mouse_off)
-        plt.disconnect(binding_id)
+        print('on_click')
+        # print('disconnecting callback')
+        # print(mouse_off)
+        # plt.disconnect(binding_id)
 
+
+def on_pick(event):
+    global mouse_off
+    global line1
+    global binding_id
+    print(event.artist)
+
+    print('removing')
+    thisline = event.artist
+    thisline.remove()
+    plt.draw()
+
+    binding_id = plt.connect('motion_notify_event', on_move)
+    plt.connect('button_press_event', on_click)
+
+plt.connect('pick_event', on_pick)
+# coords = []
+# def on_click(event):
+#     global ix, iy
+#     ix, iy = event.xdata, event.ydata
+#     print ('x = %d, y = %d'%(
+#         ix, iy))
+#
+#     global coords
+#     coords.append((ix, iy))
+#
+#     if len(coords) == 2:
+#         fig.canvas.mpl_disconnect(cid)
+#
+#     return coords
+# cid = fig.canvas.mpl_connect('button_press_event', on_click)
+
+# def onpick(event):
+#     origin = df.iloc[event.ind[0]]['origin']
+#     plt.gca().set_title('Selected item came from {}'.format(origin))
 
 binding_id = plt.connect('motion_notify_event', on_move)
 plt.connect('button_press_event', on_click)
-
 
 plt.show()
